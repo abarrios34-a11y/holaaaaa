@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INTEGRAGESTOS — Cálculo integral en movimiento</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--red:#83d9ff;--red2:#55bce9;--bg:#111519;--panel:#191f24;--panel2:#20272d;--line:#35414a;--text:#f2f7fa;--muted:#a9b7c1}
+body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+header{background:linear-gradient(135deg,#20262b,#101417);padding:22px 30px 17px;display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid var(--red);box-shadow:0 4px 20px #000}
+.brand{display:flex;align-items:center;gap:15px}.logoMark{font-size:44px;color:var(--red);font-weight:900;line-height:1}.logo{font-size:31px;font-weight:900;letter-spacing:.8px}.logo .red{color:var(--red)}.tag{font-size:15px;color:#ddd;margin-top:5px}.headerRight{font-size:15px;color:#eee;text-align:right}.handIcon{font-size:36px;color:var(--red);vertical-align:middle;margin-right:8px}
+main{max-width:1500px;margin:24px auto;padding:0 24px}.cameraActivationCard{margin-bottom:16px}.activationRow{display:grid;grid-template-columns:auto auto minmax(220px,1fr);align-items:center;gap:16px}.activationRow .status{margin:0}.visualizations{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,1fr);gap:16px;margin-bottom:16px;align-items:stretch}.visualizations>.card,.lowerWorkspace>.card{min-width:0}.visualizations .graph{height:340px}.visualizations .graph3d{height:340px}.cameraPreviewCard .cameraBox{height:auto;min-height:320px;aspect-ratio:4/3}.cameraPreviewCard .interactionCurrent{margin-top:12px}.cameraDetectionRow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;margin-top:10px}.cameraDetectionRow .fingerBox{margin:0}.cameraDetectionRow .placeholder{margin:0}.lowerWorkspace{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;align-items:stretch}.stack{display:flex;flex-direction:column;gap:16px}.card{background:linear-gradient(145deg,#20272d,#12171b);border:1px solid var(--line);border-radius:15px;padding:16px;box-shadow:0 6px 24px #0008}.card h2{font-size:18px;margin-bottom:14px}.titleRow{display:flex;align-items:center;gap:10px}.titleIcon{color:var(--red);font-size:25px;font-weight:900}
+.cameraBox{position:relative;background:#101519;border-radius:11px;overflow:hidden;aspect-ratio:4/3;border:1px solid #2c3339}.cameraBox video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:block}.cameraOverlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;transform:scaleX(-1)}.cameraMsg{position:absolute;bottom:8px;left:8px;right:8px;background:#000b;padding:9px;border-radius:8px;font-size:12px;text-align:center}.controls{display:flex;gap:9px;margin-top:11px}.btn{flex:1;border:1px solid var(--red);border-radius:10px;padding:11px 10px;font-weight:700;cursor:pointer;background:var(--red);color:white}.btn.secondary{background:#20272d;color:#eee;border-color:#384047}.btn:disabled{opacity:.45;cursor:not-allowed}.active{display:flex;align-items:center;gap:8px;margin-top:12px;color:#ddd;font-size:13px}.dot{width:11px;height:11px;background:#20dc75;border-radius:50%;display:inline-block;box-shadow:0 0 10px #20dc75}.dot.off{background:#777;box-shadow:none}
+.fingerBox{background:#20272d;border:1px solid #30373d;border-radius:11px;padding:13px;margin-top:10px;display:flex;align-items:center;gap:12px}.fingerGraphic{font-size:37px;color:#aeb7c1}.fingerNum{font-size:26px;font-weight:800}.fingerLabel{color:#aaa;font-size:12px;margin-top:3px}.placeholder{min-height:120px;display:flex;align-items:center;justify-content:center;text-align:center;color:#c8cdd2;font-size:13px;background:#1a2025;border:1px solid #30373d;border-radius:11px;padding:18px;margin-top:10px}.instructions li{margin:9px 0 0 18px;font-size:13px;line-height:1.35;color:#e1e4e7}
+.info{display:grid;grid-template-columns:1fr;gap:10px}.intervalRow{display:grid;grid-template-columns:1fr 1fr;gap:10px}.paramInput{width:100%;margin-top:2px;background:#171d22;color:#fff;border:1px solid #3a4249;border-radius:8px;padding:9px;font-size:14px;outline:none}.paramInput:focus{border-color:var(--red);box-shadow:0 0 0 2px #83d9ff22}.paramHelp{font-size:11px;line-height:1.45;color:#9fa7af;background:#1a2025;border:1px solid #252c32;border-radius:9px;padding:9px}.field{background:#20272d;border:1px solid #272e34;border-radius:11px;padding:11px}.field span{display:block;font-size:12px;color:#b2b9c0;margin-bottom:5px}.field b{font-size:14px;color:#f1f1f1}
+.graph{width:100%;height:270px;border:1px solid #30373d;border-radius:11px;background:#171d22}.status{padding:12px;border-radius:10px;background:#20272d;border-left:4px solid var(--red);font-size:13px;margin-top:10px;color:#ddd}.status strong{color:white}.resultBox{min-height:270px;display:flex;flex-direction:column;justify-content:center;gap:24px}.resultLine{font-size:16px}.resultLine b{display:block;font-size:14px;color:#bbb;margin-bottom:7px}.resultLine .value{font-size:22px;color:white}.resultLine .red{color:var(--red)}
+.interactionGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.interaction{background:#171d22;border:1px solid var(--red);border-radius:12px;padding:15px;text-align:center;min-height:130px;display:flex;flex-direction:column;justify-content:center;gap:8px}.interaction .big{font-size:30px;color:var(--red)}.interaction b{font-size:16px}.interaction small{color:#b6bcc2;font-size:12px;line-height:1.3}.graph3d{width:100%;height:340px;background:radial-gradient(ellipse at 50% 30%,#303941 0%,#1a2025 55%,#101417 100%);border:1px solid #4a5862;border-radius:10px;overflow:hidden;position:relative;box-shadow:inset 0 0 25px #0008}.graph3d canvas{display:block;width:100%;height:100%}.gestureTester{margin-top:12px;background:#171d22;border:1px solid #303941;border-radius:11px;padding:11px}.gestureTesterTitle{font-size:13px;font-weight:800;margin-bottom:9px;color:#e9edf0}.gestureTestGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.gestureTestButton{min-width:0;min-height:46px;display:flex;align-items:center;justify-content:center;padding:8px 12px;background:#20272d;border:1px solid #83d9ff;border-radius:13px;color:#d9f3ff;cursor:pointer;transition:transform .15s,border-color .15s,background .15s;text-align:left}.gestureTestButton:hover,.gestureTestButton:focus-visible{border-color:#b8ecff;background:#293a43;transform:translateY(-1px);outline:none}.gestureTestButton.selected{border-color:#83d9ff;box-shadow:0 0 0 1px #83d9ff;background:#263943}.gestureTestButton b{font-size:13px;line-height:1.25;text-align:center}.gestureTestButton small{display:none}.graph3d .graph3dMsg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#d4d8dc;font-size:14px;text-align:center;pointer-events:none;padding:20px}.footer{text-align:center;color:#6f7881;font-size:12px;margin:18px 0}
+.chat-launch{position:fixed;right:22px;bottom:22px;z-index:40;border:0;border-radius:999px;background:var(--red);color:#fff;padding:14px 18px;font-weight:800;box-shadow:0 8px 28px #0009;cursor:pointer}.chat-panel{position:fixed;right:22px;bottom:84px;width:min(360px,calc(100vw - 28px));height:440px;max-height:calc(100vh - 110px);z-index:40;background:#171d22;border:1px solid #343b42;border-radius:16px;box-shadow:0 18px 55px #000b;display:none;flex-direction:column;overflow:hidden}.chat-panel.open{display:flex}.chat-head{display:flex;align-items:center;justify-content:space-between;padding:14px 15px;background:#252d34;border-bottom:1px solid #30373d}.chat-head strong{font-size:15px}.chat-close{background:transparent;border:0;color:#fff;font-size:23px;cursor:pointer;padding:0 4px}.chat-log{padding:13px;display:flex;flex-direction:column;gap:10px;overflow:auto;flex:1}.chat-message{max-width:90%;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}.chat-message.bot{align-self:flex-start;background:#171d22;color:#edf0f2;border:1px solid #2b333a}.chat-message.user{align-self:flex-end;background:#287ba0;color:#fff}.chat-suggestions{display:flex;gap:6px;flex-wrap:wrap;padding:0 12px 10px}.chat-suggestions button{border:1px solid #3b444c;background:#252d34;color:#e8ecef;border-radius:999px;padding:6px 9px;font-size:11px;cursor:pointer}.chat-form{display:flex;gap:7px;padding:11px;border-top:1px solid #30373d}.chat-form input{min-width:0;flex:1;background:#11171b;border:1px solid #3a4249;border-radius:9px;padding:10px;color:white;outline:none}.chat-form button{border:0;border-radius:9px;background:var(--red);color:white;font-weight:700;padding:0 12px;cursor:pointer}.chat-note{padding:0 12px 9px;font-size:10px;color:#87919a}.graph{display:block;min-height:220px}.welcome{position:fixed;inset:0;background:rgba(10,14,17,.94);z-index:20;display:flex;align-items:center;justify-content:center;padding:20px}.welcome.hidden{display:none}.welcomeBox{max-width:560px;width:100%;background:linear-gradient(145deg,#252d34,#11171b);border:1px solid #343a40;border-top:4px solid var(--red);border-radius:20px;padding:32px;text-align:center;box-shadow:0 20px 80px #000}.welcomeIcon{font-size:55px;color:var(--red);margin-bottom:12px}.welcome h1{font-size:28px;margin-bottom:10px}.welcome p{color:#c6cbd0;line-height:1.5;margin-bottom:20px}.steps{text-align:left;background:#20272d;border:1px solid #3a454d;border-radius:12px;padding:16px;margin-bottom:20px}.steps div{margin:10px 0;color:#eee}.stepNum{display:inline-flex;width:25px;height:25px;border-radius:50%;background:var(--red);align-items:center;justify-content:center;font-weight:bold;margin-right:8px}.permissionNote{font-size:12px;color:#929aa2;margin-top:12px}.error{color:#8bdcff}
+@media(max-width:1150px){.activationRow{grid-template-columns:auto 1fr}.activationRow .status{grid-column:1/-1}.visualizations{grid-template-columns:1fr 1fr}.visualizations .graph{height:300px}.visualizations .graph3d{height:320px}.gestureTestGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.gestureTestButton{padding:8px 10px}.gestureTestButton b{font-size:12px}.cameraPreviewCard{grid-column:1/-1;grid-row:1}.cameraPreviewCard .cameraBox{min-height:0;max-height:520px}.lowerWorkspace{grid-template-columns:1fr 1fr}.interactionGrid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.activationRow,.visualizations,.lowerWorkspace{grid-template-columns:1fr}.activationRow .status{grid-column:auto}.visualizations .graph{height:270px}.visualizations .graph3d{height:300px}.cameraPreviewCard{grid-column:auto;grid-row:auto}.cameraPreviewCard .cameraBox{min-height:0;height:auto;aspect-ratio:4/3}.cameraDetectionRow{grid-template-columns:1fr}.cameraDetectionRow .fingerBox{justify-content:flex-start}.chat-launch{right:14px;bottom:14px}.chat-panel{right:14px;bottom:76px;height:min(440px,calc(100vh - 90px))}header{padding:17px}.headerRight{display:none}.logo{font-size:25px}.interactionGrid{grid-template-columns:1fr 1fr}.gestureTestGrid{grid-template-columns:1fr}main{padding:0 12px}.welcomeBox{padding:24px}}
+
+/* Vista de clase: reorganización espacial, manteniendo la paleta original. */
+.primitiveCard{min-width:0}.primitiveBody{display:flex;flex-direction:column;gap:5px;font-size:12px;line-height:1.28;overflow-wrap:anywhere}.primitiveBody .methodLabel{color:var(--red);font-weight:800}.primitiveBody .primitiveFormula{font-size:14px;font-weight:800;color:var(--text);padding:4px 0}.primitiveBody ol{padding-left:19px;display:grid;gap:3px}.primitiveBody li{color:#e4ebef}.primitiveBody .primitiveNote{font-size:11px;color:var(--muted)}
+@media(min-width:1024px) and (min-height:700px){
+ body{height:100dvh;min-height:0;overflow:hidden}
+ header{height:58px;padding:5px 18px}.logoMark{font-size:34px}.logo{font-size:24px}.tag{font-size:11px;margin-top:1px}.headerRight{font-size:12px}.handIcon{font-size:23px}
+ main{height:calc(100dvh - 58px);max-width:none;margin:0;padding:8px 12px;display:grid;grid-template-rows:48px minmax(0,1.48fr) minmax(0,1fr) 12px;gap:7px}
+ .card{padding:9px;border-radius:11px;min-height:0;overflow:hidden}.card h2{font-size:14px;margin-bottom:5px}.titleRow{gap:6px}.titleIcon{font-size:16px}
+ .cameraActivationCard{margin:0;display:flex;align-items:center}.activationRow{width:100%;display:grid;grid-template-columns:210px 145px minmax(0,1fr);gap:8px}.activationRow .controls{margin:0}.activationRow .active{margin:0;font-size:11px}.activationRow .status{font-size:11px;padding:7px;margin:0;grid-column:auto}.controls{gap:5px}.btn{padding:7px;font-size:11px;border-radius:7px}
+ .visualizations{min-height:0;margin:0;gap:8px;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr) minmax(0,1.04fr)}
+ .visualizations>.card{display:flex;flex-direction:column;min-height:0}.cameraPreviewCard{grid-column:auto;grid-row:auto}
+ .visualizations .graph{height:auto;min-height:0;flex:1}.graph2dCard .paramHelp{margin-top:5px;padding:5px;font-size:10px}
+ .cameraPreviewCard .cameraBox{height:auto;min-height:0;aspect-ratio:auto;flex:1}.cameraPreviewCard .cameraDetectionRow{margin-top:5px;gap:5px;grid-template-columns:120px minmax(0,1fr)}.fingerBox{padding:5px;gap:5px}.fingerGraphic{font-size:20px}.fingerNum{font-size:16px}.fingerLabel{font-size:9px}.cameraPreviewCard .placeholder{min-height:0;padding:5px;font-size:10px}.cameraPreviewCard .interactionCurrent{margin-top:5px;padding:5px}.cameraPreviewCard .interactionCurrent span{font-size:10px}.cameraPreviewCard .interactionCurrent b{font-size:11px}.cameraPreviewCard #gestureIcon{display:none}
+ .visualizations .graph3d{height:auto;min-height:0;flex:1}.gestureTester{margin-top:5px;padding:5px}.gestureTesterTitle{font-size:10px;margin-bottom:4px}.gestureTestGrid{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}.gestureTestButton{min-height:37px;padding:3px;border-radius:7px}.gestureTestButton b{font-size:9px;line-height:1.2}.gestureTester .paramHelp{padding:2px 0;background:none;border:0;font-size:9px}
+ .lowerWorkspace{min-height:0;display:grid;grid-template-columns:minmax(190px,1.04fr) minmax(160px,.82fr) minmax(285px,1.6fr) minmax(145px,.72fr);gap:8px}
+ .lowerWorkspace>.card{min-height:0}.info{gap:4px}.intervalRow{gap:5px}.field{padding:5px;border-radius:7px}.field span{font-size:10px;margin-bottom:2px}.field b{font-size:11px}.paramInput{padding:5px;font-size:12px}.functionCard .paramHelp{font-size:9px;padding:4px}.functionCard .status{font-size:10px;padding:5px!important;margin-top:3px!important}.functionCard .btn{padding:6px}
+ .resultBox{min-height:0;gap:8px;justify-content:start}.resultLine{font-size:12px}.resultLine b{font-size:11px;margin-bottom:2px}.resultLine .value{font-size:17px;overflow-wrap:anywhere}
+ .primitiveBody{font-size:11px;gap:3px;line-height:1.23}.primitiveBody .primitiveFormula{font-size:13px;padding:1px 0}.primitiveBody ol{gap:1px}.primitiveBody .primitiveNote{font-size:10px}
+ .functionCard .info{grid-template-columns:minmax(0,1.4fr) minmax(105px,1fr);gap:4px;align-content:start}
+ .functionCard .info>.field:first-child{grid-column:1;grid-row:1}
+ .functionCard .info>.intervalRow{grid-column:1;grid-row:2}
+ .functionCard .info>.field:nth-child(3){grid-column:2;grid-row:1}
+ .functionCard .info>#plotBtn{grid-column:2;grid-row:2;align-self:stretch}
+ .functionCard .info>#plotStatus{grid-column:1/-1;grid-row:3}
+ .functionCard .info>.paramHelp{grid-column:1/-1;grid-row:4}
+ .functionCard .intervalRow{grid-template-columns:1fr 1fr}
+ @media(max-width:1179px){
+ .functionCard .info>#plotStatus{min-height:0;height:23px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .functionCard .info>.paramHelp{min-height:0;height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:9px;line-height:12px}
+ }
+ .lowerWorkspace .instructions li{font-size:10px;margin:5px 0 0 13px;line-height:1.15}
+ main>.card:not(.cameraActivationCard){margin-top:0!important}.interactionGrid{gap:7px;grid-template-columns:repeat(5,minmax(0,1fr))}.interaction{min-height:0;padding:5px;gap:3px;border-radius:8px;flex-direction:row;align-items:center}.interaction .big{font-size:20px}.interaction b{font-size:11px}.interaction small{font-size:10px}.footer{margin:0;font-size:10px;align-self:center}
+ .chat-launch{padding:9px 12px;right:12px;bottom:12px;font-size:11px}
+}
+/* En pantallas pequeñas, se mantiene la lectura cómoda y el desplazamiento natural. */
+@media(min-width:701px) and (max-width:1023px){.lowerWorkspace{grid-template-columns:repeat(2,minmax(0,1fr))}.primitiveCard{grid-column:1/-1}.primitiveBody{font-size:13px}}
+@media(max-width:700px){.lowerWorkspace{grid-template-columns:1fr}.primitiveBody{font-size:13px}}
+
+/* Visor de código de consulta: no modifica la cuadrícula ni los paneles originales. */
+.code-launch{position:fixed;right:139px;bottom:22px;z-index:40;border:1px solid var(--red);border-radius:999px;background:#20272d;color:#d9f3ff;padding:14px 16px;font-weight:800;box-shadow:0 8px 28px #0009;cursor:pointer}
+.code-launch:hover{background:#293943}
+.code-viewer[hidden]{display:none!important}
+.code-viewer{position:fixed;inset:0;z-index:100;background:rgba(6,9,12,.87);display:flex;align-items:center;justify-content:center;padding:14px}
+.code-viewer-dialog{background:#171d22;color:#f2f7fa;border:1px solid #40505b;border-radius:15px;box-shadow:0 18px 65px #000c;width:min(1100px,100%);height:min(830px,95dvh);display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.code-viewer-header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:15px 18px;border-bottom:1px solid #35414a}
+.code-viewer-header h2{font-size:19px;margin:0}
+.code-viewer-description{padding:10px 18px 0;font-size:12px;color:#a9b7c1}
+.code-viewer-tools{display:flex;gap:8px;flex-wrap:wrap;padding:12px 18px}
+.code-viewer-tools button,.code-viewer-close{border:1px solid #4a6473;background:#20272d;color:#f2f7fa;border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:700}
+.code-viewer-tools button[aria-selected="true"]{background:#28576c;border-color:#83d9ff;color:#fff}
+.code-viewer-tools .code-viewer-copy{margin-left:auto;background:#287ba0;border-color:#83d9ff}
+.code-viewer-close{font-size:22px;line-height:1;padding:4px 11px}
+.code-viewer-code{flex:1;min-height:0;overflow:auto;margin:0 18px 18px;background:#101519;color:#e6ebef;border:1px solid #35414a;border-radius:10px;padding:14px;white-space:pre;tab-size:2;font:12px/1.5 Consolas,Monaco,monospace;user-select:text}
+.code-viewer-code code{font:inherit}
+@media(max-width:700px){.code-launch{right:103px;bottom:12px;padding:9px 11px;font-size:11px}.code-viewer-header{padding:11px 13px}.code-viewer-tools{padding:10px 12px}.code-viewer-tools .code-viewer-copy{margin-left:0}.code-viewer-code{margin:0 12px 12px}}
+
+</style>
+</head>
+<body>
+<div class="welcome" id="welcome">
+  <div class="welcomeBox">
+    <div class="welcomeIcon">✋</div>
+    <h1>Bienvenido a INTEGRAGESTOS</h1>
+    <p>Para comenzar, debes activar la cámara. Después coloca una sola mano frente a la cámara y muestra de <b>1 a 5 dedos</b> para ejecutar las diferentes interacciones.</p>
+    <div class="steps">
+      <div><span class="stepNum">1</span> Presiona <b>Activar cámara</b>.</div>
+      <div><span class="stepNum">2</span> Acepta el permiso de cámara del navegador.</div>
+      <div><span class="stepNum">3</span> Coloca tu mano completa frente a la cámara.</div>
+      <div><span class="stepNum">4</span> Mantén la mano quieta durante un instante.</div>
+      <div><span class="stepNum">5</span> La aplicación contará automáticamente tus dedos.</div>
+    </div>
+    <button class="btn" id="welcomeStart">Activar cámara y comenzar</button>
+    <div class="permissionNote">Si el navegador pregunta si permites usar la cámara, selecciona <b>Permitir</b>.</div>
+  </div>
+</div>
+
+<header>
+  <div class="brand"><div class="logoMark">∞</div><div><div class="logo">INTEGRA<span class="red">GESTOS</span></div><div class="tag">Cálculo integral en movimiento</div></div></div>
+  <div class="headerRight"><span class="handIcon">✋</span> Tu mano,<br>tus cálculos</div>
+</header>
+<main>
+<section class="card cameraActivationCard">
+  <div class="titleRow"><span class="titleIcon">▣</span><h2>1. Activar cámara</h2></div>
+  <div class="activationRow">
+    <div class="controls"><button class="btn" id="start">Activar cámara</button><button class="btn secondary" id="stop" disabled>Detener cámara</button></div>
+    <div class="active"><span class="dot off" id="cameraDot"></span><span id="cameraState">Cámara inactiva</span></div>
+    <div class="status" id="cameraStatus"><strong>Antes de comenzar:</strong> activa la cámara y permite el acceso cuando el navegador lo solicite.</div>
+  </div>
+</section>
+
+<section class="visualizations">
+  <section class="card graph2dCard">
+    <div class="titleRow"><span class="titleIcon">∿</span><h2>2. Gráfica de la función (2D)</h2></div>
+    <canvas id="graph" class="graph" aria-label="Gráfica bidimensional de la función"></canvas>
+    <div class="paramHelp">Representa la función seleccionada dentro del intervalo indicado.</div>
+  </section>
+  <section class="card cameraPreviewCard">
+    <div class="titleRow"><span class="titleIcon">●</span><h2>3. Vista de la cámara</h2></div>
+    <div class="cameraBox"><video id="video" autoplay playsinline muted></video><canvas id="overlay" class="cameraOverlay"></canvas><div class="cameraMsg" id="cameraMsg">Activa la cámara y coloca una mano frente a ella.</div></div>
+    <div class="cameraDetectionRow">
+      <div class="fingerBox"><div class="fingerGraphic">✋</div><div><div>Dedos detectados:</div><div class="fingerNum" id="dedos">0</div><div class="fingerLabel" id="handStatus">Esperando cámara...</div></div></div>
+      <div class="placeholder" id="handMessage">Coloca una mano completa y bien iluminada.</div>
+    </div>
+    <div class="field interactionCurrent"><span>Interacción actual</span><b id="accion">Muestra un gesto con 1 a 5 dedos para ejecutar una acción.</b><div style="font-size:36px;margin-top:8px" id="gestureIcon">✋</div></div>
+  </section>
+  <section class="card revolution-card">
+    <div class="titleRow"><span class="titleIcon">▱</span><h2>4. Sólido de revolución (3D)</h2></div>
+    <div id="graph3d" class="graph3d" aria-label="Sólido de revolución en tres dimensiones"></div>
+    <div class="gestureTester">
+      <div class="gestureTesterTitle">Prueba los gestos con un toque</div>
+      <div class="gestureTestGrid">
+        <button type="button" class="gestureTestButton" data-gesture-test="1"><b>Probar área bajo la curva (1 dedo)</b></button>
+        <button type="button" class="gestureTestButton" data-gesture-test="2"><b>Probar eje X (2 dedos)</b></button>
+        <button type="button" class="gestureTestButton" data-gesture-test="3"><b>Probar eje Y (3 dedos)</b></button>
+        <button type="button" class="gestureTestButton" data-gesture-test="4"><b>Probar área superficial (4 dedos)</b></button>
+        <button type="button" class="gestureTestButton" data-gesture-test="5"><b>Probar longitud de arco (5 dedos)</b></button>
+      </div>
+      <div class="paramHelp">Pulsa cualquiera de los cinco botones para mostrar su gesto y actualizar las gráficas y el cálculo. También puedes hacer el gesto frente a la cámara.</div>
+    </div>
+  </section>
+</section>
+
+<section class="lowerWorkspace">
+  <section class="card functionCard">
+    <div class="titleRow"><span class="titleIcon">ƒ</span><h2>5. Función e intervalos de la gráfica 2D</h2></div>
+    <div class="info">
+      <div class="field"><span>Función f(x):</span><input id="funcInput" class="paramInput" value="x^2" placeholder="Ej: x^2 + 2*x"></div>
+      <div class="intervalRow"><div class="field"><span>Inicio a:</span><input id="aInput" class="paramInput" type="number" step="any" value="-2"></div><div class="field"><span>Final b:</span><input id="bInput" class="paramInput" type="number" step="any" value="2"></div></div>
+      <div class="field"><span>Ejes de trabajo:</span><b>Eje X y Eje Y</b></div>
+      <button class="btn" id="plotBtn">Actualizar gráfica y cálculo</button><div id="plotStatus" class="status" style="margin-top:10px"><strong>Gráfica:</strong> lista para actualizar.</div>
+      <div class="paramHelp">Ejemplos de intervalos: [-5, 3], [0, 10] o [-3, 3]. Escribe la función y pulsa el botón para actualizar.</div>
+    </div>
+  </section>
+  <section class="card"><div class="titleRow"><span class="titleIcon">Σ</span><h2>6. Resultado del cálculo</h2></div><div class="resultBox"><div class="resultLine"><b>Integral:</b><span class="value" id="integral">—</span></div><div class="resultLine"><b>Resultado:</b><span class="value red" id="resultado">—</span></div><div class="resultLine"><b>Unidades:</b><span class="value" id="unidades">—</span></div></div></section>
+  <section class="card primitiveCard"><div class="titleRow"><span class="titleIcon">∫</span><h2>Antiderivada y procedimiento</h2></div><div class="primitiveBody" id="primitiveContent" aria-live="polite"><div class="primitiveNote">Escribe una función para ver el método, los pasos y la antiderivada.</div></div></section>
+  <section class="card"><div class="titleRow"><span class="titleIcon">ⓘ</span><h2>Instrucciones de uso</h2></div><ol class="instructions"><li>Activa la cámara y permite el acceso.</li><li>Coloca una sola mano completa frente a la cámara.</li><li>Mantén los dedos separados y visibles.</li><li>La aplicación detectará de 1 a 5 dedos.</li><li>Observa las gráficas y el resultado.</li></ol></section>
+</section>
+
+<section class="chat-panel" id="chatPanel" role="dialog" aria-label="Asistente de INTEGRAGESTOS" aria-modal="false">
+  <div class="chat-head"><strong>Asistente de INTEGRAGESTOS</strong><button class="chat-close" id="chatClose" aria-label="Cerrar chat">×</button></div>
+  <div class="chat-log" id="chatLog" aria-live="polite"><div class="chat-message bot">¡Hola! Soy el asistente de INTEGRAGESTOS. Puedo explicarte los gestos, las integrales, las gráficas y cómo escribir una función.</div></div>
+  <div class="chat-suggestions"><button type="button" data-chat="¿Qué hace cada gesto?">Gestos</button><button type="button" data-chat="¿Cómo escribo una función?">Funciones</button><button type="button" data-chat="¿Cómo funciona la gráfica 3D?">Gráfica 3D</button></div>
+  <form class="chat-form" id="chatForm"><input id="chatInput" autocomplete="off" placeholder="Escribe tu pregunta…" aria-label="Escribe tu pregunta" required><button type="submit">Enviar</button></form>
+  <div class="chat-note">Asistente educativo con respuestas integradas; no sustituye la revisión de los cálculos.</div>
+</section>
+
+<!-- Botón flotante y visor de código. No ocupa espacio dentro de las gráficas. -->
+<button class="code-launch" id="codeLaunch" type="button" aria-haspopup="dialog" aria-controls="codeViewer">&lt;/&gt; Código aquí</button>
+<section class="code-viewer" id="codeViewer" role="dialog" aria-modal="true" aria-label="Código de INTEGRAGESTOS" hidden>
+  <div class="code-viewer-dialog">
+    <div class="code-viewer-header">
+      <h2>◈ Código de INTEGRAGESTOS</h2>
+      <button class="code-viewer-close" id="codeClose" type="button" aria-label="Cerrar visor de código">×</button>
+    </div>
+    <p class="code-viewer-description">Consulta el código de esta misma página. HTML completo incluye el CSS y JavaScript; también puedes revisarlos por separado.</p>
+    <div class="code-viewer-tools" role="tablist" aria-label="Secciones del código">
+      <button type="button" data-code-tab="all" aria-selected="true" role="tab">Código completo</button>
+      <button type="button" data-code-tab="css" aria-selected="false" role="tab">CSS</button>
+      <button type="button" data-code-tab="js" aria-selected="false" role="tab">JavaScript</button>
+      <button type="button" class="code-viewer-copy" id="codeCopy">Copiar código</button>
+    </div>
+    <pre class="code-viewer-code" tabindex="0"><code id="codeContent">Selecciona una sección para consultar el código.</code></pre>
+  </div>
+</section>
+
+<button class="chat-launch" id="chatLaunch" type="button" aria-expanded="false" aria-controls="chatPanel">💬 Ayuda</button>
+<div class="footer">INTEGRAGESTOS · Cálculo integral en movimiento</div>
+</main>
+
+<!-- MediaPipe Hands: reconocimiento real de la mano mediante la cámara -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+<script>
+// Chat de ayuda integrado: respuestas educativas basadas en las funciones de la aplicación.
+const chatPanel=document.getElementById('chatPanel');
+const chatLaunch=document.getElementById('chatLaunch');
+const chatClose=document.getElementById('chatClose');
+const chatLog=document.getElementById('chatLog');
+const chatForm=document.getElementById('chatForm');
+const chatInput=document.getElementById('chatInput');
+function addChatMessage(text,who){const el=document.createElement('div');el.className='chat-message '+who;el.textContent=text;chatLog.appendChild(el);chatLog.scrollTop=chatLog.scrollHeight;}
+function getChatAnswer(question){
+  const q=question.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9+^()., -]/g,' ');
+  if(/gesto|dedo|mano|interaccion/.test(q))return 'Los gestos son: 1 dedo = área bajo la curva; 2 = volumen alrededor del eje X; 3 = volumen alrededor del eje Y; 4 = área superficial; 5 = longitud de arco. Muestra la mano completa, con buena luz y los dedos separados.';
+  if(/funcion|escrib|potencia|exponente|sintaxis/.test(q))return 'En “Función f(x)” puedes escribir, por ejemplo: x^2, x^2+2*x, sin(x), cos(x), sqrt(x) o abs(x). Usa * para multiplicar y ^ para potencias. Pulsa “Graficar intervalo” o Enter para actualizar.';
+  if(/intervalo|inicio|final|limite|a y b/.test(q))return 'El intervalo se define con los campos “Inicio a” y “Final b”. Deben ser números diferentes. Si escribes el extremo mayor primero, la aplicación los ordena automáticamente.';
+  if(/grafica 2d|dos dimensiones|grafica plana|grafica de la funcion|que muestra la grafica/.test(q))return 'La gráfica 2D muestra f(x) dentro del intervalo indicado. Se actualiza cuando cambias la función, el intervalo o el gesto.';
+  if(/3d|tres dimensiones|solido|revolucion|eje x|eje y/.test(q))return 'La vista 3D representa la curva o el sólido asociado al gesto. El gesto 2 gira alrededor del eje X y el gesto 3 alrededor del eje Y. Puedes observar el movimiento continuo de la escena.';
+  if(/integral|resultado|calculo|formula|area|volumen|arco|superficial|derivada|primitiva|antiderivada|sustitucion|por partes/.test(q))return 'El resultado depende de la función, el intervalo y el gesto detectado. La aplicación aproxima numéricamente las integrales y muestra la fórmula usada, el resultado y las unidades. Comprueba que la función y los límites sean los que necesitas.';
+  if(/camara|activar|permiso|no funciona|no detecta/.test(q))return 'Pulsa “Activar cámara” y permite el acceso en el navegador. Usa la página por HTTPS o localhost, ilumina bien la mano y deja visibles los cinco dedos. Si no funciona, revisa los permisos de cámara y recarga la página.';
+  if(/ayuda|hola|buenas|que puedes/.test(q))return 'Puedo ayudarte con los cinco gestos, las funciones, los intervalos, los resultados, la cámara y las gráficas 2D/3D. Escribe tu duda o toca uno de los botones de sugerencias.';
+  return 'No tengo una respuesta específica para esa pregunta en la ayuda integrada. Puedo orientarte sobre los gestos, la cámara, funciones, intervalos, integrales y gráficas 2D/3D. Si es una duda matemática, escribe la función y el ejercicio completo para poder orientarte mejor.';
+}
+function sendChat(text){const message=text.trim();if(!message)return;addChatMessage(message,'user');addChatMessage(getChatAnswer(message),'bot');}
+chatLaunch.addEventListener('click',()=>{const open=!chatPanel.classList.contains('open');chatPanel.classList.toggle('open',open);chatLaunch.setAttribute('aria-expanded',String(open));if(open)chatInput.focus();});
+chatClose.addEventListener('click',()=>{chatPanel.classList.remove('open');chatLaunch.setAttribute('aria-expanded','false');chatLaunch.focus();});
+chatForm.addEventListener('submit',e=>{e.preventDefault();sendChat(chatInput.value);chatInput.value='';chatInput.focus();});
+document.querySelectorAll('[data-chat]').forEach(btn=>btn.addEventListener('click',()=>sendChat(btn.dataset.chat)));
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.159.0/build/three.min.js"></script>
+<script>
+const video=document.getElementById('video');
+const overlay=document.getElementById('overlay');
+const ctx=overlay.getContext('2d');
+const start=document.getElementById('start');
+const stop=document.getElementById('stop');
+const welcome=document.getElementById('welcome');
+const welcomeStart=document.getElementById('welcomeStart');
+const cameraState=document.getElementById('cameraState');
+const cameraDot=document.getElementById('cameraDot');
+const cameraMsg=document.getElementById('cameraMsg');
+const cameraStatus=document.getElementById('cameraStatus');
+const dedos=document.getElementById('dedos');
+const handStatus=document.getElementById('handStatus');
+const handMessage=document.getElementById('handMessage');
+const accion=document.getElementById('accion');
+const gestureIcon=document.getElementById('gestureIcon');
+let stream=null, camera=null, running=false, lastCount=-1, stableCount=0, stableFrames=0;
+
+const actions={
+  1:['Área bajo la curva','Integral definida y área geométrica','☝'],
+  2:['Volumen alrededor del eje X','Volumen por discos o arandelas','✌'],
+  3:['Volumen alrededor del eje Y','Volumen por capas cilíndricas o arandelas','🤟'],
+  4:['Área superficial','Área superficial del sólido de revolución','🖖'],
+  5:['Longitud de arco','Longitud de la curva en el intervalo','🖐']
+};
+
+function normalizeExpr(expr){
+  let e=expr.trim().toLowerCase().replace(/π/g,'pi').replace(/−/g,'-').replace(/,/g,'.');
+  // Se normalizan únicamente expresiones matemáticas; la interfaz permanece intacta.
+  e=e.replace(/\^/g,'**');
+  // Permite multiplicación implícita antes de funciones: 2cos(x), 3sqrt(x).
+  e=e.replace(/(\d)\s*(sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|sqrt|abs|exp|ln|log)\b/g,'$1*$2');
+  e=e.replace(/\bln\b/g,'Math.log').replace(/\blog\b/g,'Math.log10');
+  e=e.replace(/\basin\b/g,'Math.asin').replace(/\bacos\b/g,'Math.acos').replace(/\batan\b/g,'Math.atan');
+  e=e.replace(/\bsinh\b/g,'Math.sinh').replace(/\bcosh\b/g,'Math.cosh').replace(/\btanh\b/g,'Math.tanh');
+  e=e.replace(/\bsin\b/g,'Math.sin').replace(/\bcos\b/g,'Math.cos').replace(/\btan\b/g,'Math.tan');
+  e=e.replace(/\bsqrt\b/g,'Math.sqrt').replace(/\babs\b/g,'Math.abs').replace(/\bexp\b/g,'Math.exp');
+  e=e.replace(/\bpi\b/g,'Math.PI').replace(/\be\b/g,'Math.E');
+  // Multiplicación implícita: 2x, 2(x+1), x(x+1), (x+1)(x-1).
+  e=e.replace(/(\d)(x\b)/g,'$1*$2');
+  e=e.replace(/(\d|x|\))\s*(Math\.)/g,'$1*$2');
+  e=e.replace(/(\d|x|\))\s*(\()/g,'$1*$2');
+  e=e.replace(/(\))\s*(x|\d|Math\.)/g,'$1*$2');
+  return e;
+}
+function makeFunction(expr){
+  const e=normalizeExpr(expr);
+  const checked=e.replace(/Math\.(?:sin|cos|tan|asin|acos|atan|sinh|cosh|tanh|sqrt|abs|exp|log10?|PI|E)\b/g,'');
+  if(!/^[0-9x+\-*/().,\s_*]+$/.test(checked)) throw new Error('La función contiene caracteres no permitidos.');
+  return new Function('x','return ('+e+');');
+}
+function readParams(){
+  const expr=document.getElementById('funcInput').value.trim() || 'x^2';
+  let a=parseFloat(document.getElementById('aInput').value), b=parseFloat(document.getElementById('bInput').value);
+  if(Number.isNaN(a)||Number.isNaN(b)) throw new Error('Escribe valores numéricos para a y b.');
+  if(a===b) throw new Error('El intervalo debe tener dos extremos diferentes.');
+  if(a>b){const t=a;a=b;b=t;document.getElementById('aInput').value=a;document.getElementById('bInput').value=b;}
+  return {expr,a,b,fn:makeFunction(expr),axis:'xy'};
+}
+function sampleFunction(params,n=700){
+  const pts=[]; let ymin=Infinity,ymax=-Infinity;
+  for(let i=0;i<=n;i++){
+    const xv=params.a+(params.b-params.a)*i/n;
+    let yv;
+    try{yv=params.fn(xv)}catch{yv=NaN}
+    if(Number.isFinite(yv)&&Math.abs(yv)<1e8){pts.push([xv,yv]);ymin=Math.min(ymin,yv);ymax=Math.max(ymax,yv)} else pts.push([xv,NaN]);
+  }
+  return {pts,ymin,ymax};
+}
+function graphFrame(c,params,samp){
+  const x=c.getContext('2d'),w=c.width,h=c.height;
+  x.clearRect(0,0,w,h);
+  let ymin=samp.ymin,ymax=samp.ymax;
+  if(!Number.isFinite(ymin)||!Number.isFinite(ymax)) return null;
+  if(Math.abs(ymax-ymin)<1e-9){ymin-=1;ymax+=1;} else {const pad=(ymax-ymin)*.16;ymin-=pad;ymax+=pad;}
+  // Always include y=0 when possible, so the area/volume region is visible.
+  ymin=Math.min(ymin,0); ymax=Math.max(ymax,0);
+  const xr=params.b-params.a,yr=ymax-ymin;
+  const sx=v=>(v-params.a)/xr*w, sy=v=>h-(v-ymin)/yr*h;
+  x.fillStyle='#080b0d';x.fillRect(0,0,w,h);
+  x.strokeStyle='#20272d';x.lineWidth=1;
+  for(let i=0;i<=10;i++){const px=i*w/10,py=i*h/10;x.beginPath();x.moveTo(px,0);x.lineTo(px,h);x.stroke();x.beginPath();x.moveTo(0,py);x.lineTo(w,py);x.stroke();}
+  if(params.a<=0&&params.b>=0){const px=sx(0);x.strokeStyle='#9aa3ad';x.lineWidth=1.5;x.beginPath();x.moveTo(px,0);x.lineTo(px,h);x.stroke();}
+  if(ymin<=0&&ymax>=0){const py=sy(0);x.strokeStyle='#9aa3ad';x.lineWidth=1.5;x.beginPath();x.moveTo(0,py);x.lineTo(w,py);x.stroke();}
+  return {x,w,h,sx,sy,ymin,ymax};
+}
+function drawCurve(frame,samp){
+  const {x,sx,sy}=frame;x.strokeStyle='#83d9ff';x.lineWidth=3;x.beginPath();let started=false;
+  let prevY=null;for(const [xx,yy] of samp.pts){if(!Number.isFinite(yy)){started=false;prevY=null;continue}const px=sx(xx),py=sy(yy);if(prevY!==null && Math.abs(yy-prevY)>0.6*(frame.ymax-frame.ymin)){started=false;}if(!started){x.moveTo(px,py);started=true}else x.lineTo(px,py);prevY=yy;}x.stroke();
+}
+function drawArea(frame,samp){
+  const {x,sx,sy}=frame;x.fillStyle='rgba(255,38,51,.22)';x.beginPath();let started=false;
+  for(const [xx,yy] of samp.pts){if(!Number.isFinite(yy)){if(started){x.lineTo(sx(xx),sy(0));x.closePath();x.fill();x.beginPath()}started=false;continue}const px=sx(xx),py=sy(yy),p0=sy(0);if(!started){x.moveTo(px,p0);x.lineTo(px,py);started=true}else x.lineTo(px,py);}
+  if(started){x.lineTo(sx(frame.params.b),sy(0));x.closePath();x.fill();} drawCurve(frame,samp);
+}
+function draw2DGraph(params,count=0){
+  const canvas=document.getElementById('graph');
+  if(!canvas||!params)return;
+  const rect=canvas.getBoundingClientRect();
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  canvas.width=Math.max(320,Math.floor((rect.width||320)*dpr));
+  canvas.height=Math.max(220,Math.floor((rect.height||270)*dpr));
+  const samp=sampleFunction(params,700);
+  const frame=graphFrame(canvas,params,samp);
+  if(!frame)return;
+  frame.params=params;
+  if(count===1)drawArea(frame,samp);
+  else if(count===2)drawVerticalSlices(frame,samp,'x');
+  else if(count===3)drawVerticalSlices(frame,samp,'y');
+  else if(count===4){drawArea(frame,samp);const {x,sx,sy,h}=frame;x.strokeStyle='rgba(255,255,255,.5)';x.lineWidth=1;for(let i=0;i<=24;i+=2){const xx=params.a+(params.b-params.a)*i/24;let yy;try{yy=params.fn(xx)}catch{continue}if(Number.isFinite(yy)){x.beginPath();x.moveTo(sx(xx),sy(0));x.lineTo(sx(xx),sy(yy));x.stroke();}}}
+  else drawCurve(frame,samp);
+  frame.x.fillStyle='#d8dde1';frame.x.font='12px Arial';frame.x.fillText('f(x) = '+params.expr,10,16);
+}
+
+function drawVerticalSlices(frame,samp,mode){
+  const {x,sx,sy,w,h}=frame; const N=42;
+  x.save();
+  for(let i=0;i<N;i+=2){const xv=frame.params.a+(frame.params.b-frame.params.a)*i/N; let y;try{y=frame.params.fn(xv)}catch{continue} if(!Number.isFinite(y))continue;
+    const px=sx(xv),py=sy(y),p0=sy(0),radius=Math.max(2,Math.min(h*.28,Math.abs(py-p0)));
+    if(mode==='x'){
+      const g=x.createLinearGradient(px,0,px+radius,0);g.addColorStop(0,'rgba(255,38,51,.55)');g.addColorStop(1,'rgba(255,38,51,.05)');x.fillStyle=g;x.fillRect(px-radius*.35,Math.min(py,p0),radius*.7,Math.abs(p0-py));
+    } else {
+      x.fillStyle='rgba(255,38,51,.28)';x.beginPath();x.ellipse(px,h/2,radius*.35,Math.max(3,Math.abs(py-p0)*.28),0,0,Math.PI*2);x.fill();
+    }
+  }
+  x.restore();drawCurve(frame,samp);
+  x.fillStyle='#d8dde1';x.font='13px Arial';x.fillText(mode==='x'?'Revolución alrededor del eje X':'Revolución alrededor del eje Y',12,20);
+}
+function derivative(fn,x,h){const d=Math.max(1e-5,Math.min(1e-3,Math.abs(h)));try{return (fn(x+d)-fn(x-d))/(2*d)}catch{return NaN}}
+function calculateForGesture(params,count){
+  if(count===1)return {formula:'∫ₐᵇ f(x) dx',value:numericalIntegral(params.fn,params.a,params.b),unit:'u²'};
+  if(count===2)return {formula:'π∫ₐᵇ [f(x)]² dx',value:Math.PI*numericalIntegral(params.fn,params.a,params.b,(v)=>v*v),unit:'u³'};
+  if(count===3)return {formula:'2π∫ₐᵇ |x·f(x)| dx',value:2*Math.PI*numericalIntegral(params.fn,params.a,params.b,(v,x)=>Math.abs(x*v)),unit:'u³'};
+  if(count===4){const d=params.b-params.a;return {formula:'2π∫ₐᵇ |f(x)|√(1+[f\'(x)]²) dx',value:2*Math.PI*numericalIntegral(params.fn,params.a,params.b,(v,x)=>{const q=derivative(params.fn,x,d/500);return Math.abs(v)*Math.sqrt(1+q*q)}),unit:'u²'};}
+  if(count===5){const d=params.b-params.a;return {formula:'∫ₐᵇ √(1+[f\'(x)]²) dx',value:numericalIntegral(params.fn,params.a,params.b,(v,x)=>{const q=derivative(params.fn,x,d/500);return Math.sqrt(1+q*q)}),unit:'u'};}
+  return null;
+}
+let scene3d=null, camera3d=null, renderer3d=null, root3d=null, animation3d=null, resize3d=null;
+function init3D(){
+  const host=document.getElementById('graph3d');
+  if(!window.THREE){host.innerHTML='<div class="graph3dMsg">No se pudo cargar el motor 3D. Revisa tu conexión a Internet.</div>';return false;}
+  if(renderer3d) return true;
+  scene3d=new THREE.Scene(); scene3d.background=new THREE.Color(0x1b2228);
+  const initialWidth=Math.max(host.clientWidth,320),initialHeight=Math.max(host.clientHeight,240);
+  camera3d=new THREE.PerspectiveCamera(45,initialWidth/initialHeight,0.1,2000);
+  camera3d.position.set(7.2,5.2,9.2); camera3d.lookAt(0,0,0);
+  try{renderer3d=new THREE.WebGLRenderer({antialias:true,alpha:false});}catch(err){host.innerHTML='<div class="graph3dMsg">Tu navegador no pudo iniciar WebGL. Prueba con Chrome actualizado y activa la aceleración por hardware.</div>';console.error('WebGL 3D:',err);return false;}
+  renderer3d.setPixelRatio(Math.min(window.devicePixelRatio||1,2)); renderer3d.setSize(initialWidth,initialHeight); host.innerHTML=''; host.appendChild(renderer3d.domElement);
+  const amb=new THREE.AmbientLight(0xcceeff,1.55); scene3d.add(amb);
+  const key=new THREE.DirectionalLight(0xffffff,2.8); key.position.set(5,8,6); scene3d.add(key);
+  root3d=new THREE.Group(); scene3d.add(root3d);
+  const grid=new THREE.GridHelper(14,14,0x638092,0x35434d); grid.position.y=-1.2; root3d.add(grid);
+  const axes=new THREE.AxesHelper(5); root3d.add(axes);
+  resize3d=()=>{const w=host.clientWidth,h=host.clientHeight;if(w&&h){camera3d.aspect=w/h;camera3d.updateProjectionMatrix();renderer3d.setSize(w,h);}};
+  window.addEventListener('resize',()=>{resize3d&&resize3d();draw2DGraph(currentParams,stableCount);});
+  const clock3d=new THREE.Clock();
+  const animate=()=>{
+    animation3d=requestAnimationFrame(animate);
+    const t=clock3d.getElapsedTime();
+    // Movimiento continuo para que la visualización 3D no quede estática.
+    if(root3d){
+      root3d.rotation.y = t*0.45;
+      root3d.rotation.x = Math.sin(t*0.35)*0.10;
+      // La geometría se mueve suavemente según el gesto activo.
+      if(window.__gesture3d===1){ root3d.position.y=Math.sin(t*2.0)*0.08; }
+      else if(window.__gesture3d===2){ root3d.position.y=Math.sin(t*1.6)*0.12; }
+      else if(window.__gesture3d===3){ root3d.position.y=Math.cos(t*1.8)*0.12; }
+      else if(window.__gesture3d===4){ root3d.position.y=Math.sin(t*2.2)*0.07; }
+      else if(window.__gesture3d===5){ root3d.position.y=Math.sin(t*2.5)*0.06; }
+      else { root3d.position.y=0; }
+    }
+    renderer3d.render(scene3d,camera3d);
+  }; animate();
+  return true;
+}
+function clear3D(){if(!root3d)return; while(root3d.children.length>2){const o=root3d.children.pop();o.traverse(n=>{if(n.geometry)n.geometry.dispose();if(n.material){if(Array.isArray(n.material))n.material.forEach(m=>m.dispose());else n.material.dispose();}});} }
+function addAxesLabels(){
+  const mat=new THREE.SpriteMaterial({color:0xffffff});
+  const make=(txt,pos)=>{const c=document.createElement('canvas'),x=c.getContext('2d');c.width=128;c.height=48;x.fillStyle='white';x.font='bold 28px Arial';x.fillText(txt,8,32);const tex=new THREE.CanvasTexture(c);const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true}));sp.scale.set(1.3,.5,1);sp.position.copy(pos);root3d.add(sp);};
+  make('X',new THREE.Vector3(5.3,-1.1,0));make('Y',new THREE.Vector3(0,4.8,0));make('Z',new THREE.Vector3(0,-1.1,5.3));
+}
+function makeCurvePoints(params){
+  const pts=[]; const N=160; const span=Math.max(1e-9,params.b-params.a); let maxAbs=0;
+  for(let i=0;i<=N;i++){const x=params.a+span*i/N;let y;try{y=params.fn(x)}catch{y=NaN}if(Number.isFinite(y)&&Math.abs(y)<1e6){pts.push({x,y});maxAbs=Math.max(maxAbs,Math.abs(x),Math.abs(y));}else pts.push({x,y:NaN});}
+  return {pts,maxAbs:Math.max(maxAbs,1)};
+}
+function fit3DScale(data){const xs=data.pts.filter(q=>Number.isFinite(q.x)).map(q=>Math.abs(q.x));const maxX=Math.max(1,...xs);return Math.min(4.2/maxX,3.15/Math.max(data.maxAbs,1));}
+function addCurve3D(params,data,scale){
+  const verts=[];for(const q of data.pts)if(Number.isFinite(q.y))verts.push(q.x*scale,q.y*scale,0);
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));const line=new THREE.Line(geo,new THREE.LineBasicMaterial({color:0x83d9ff}));root3d.add(line);
+}
+function addArea3D(params,data,scale){
+  const verts=[],N=160;for(let i=0;i<N;i++){const q=data.pts[i],q2=data.pts[i+1];if(!Number.isFinite(q.y)||!Number.isFinite(q2.y))continue;const x1=q.x*scale,x2=q2.x*scale,y1=q.y*scale,y2=q2.y*scale;verts.push(x1,0,0,x1,y1,0,x2,y2,0,x2,0,0);}
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));const idx=[];for(let i=0;i<verts.length/12;i++){const b=i*4;idx.push(b,b+1,b+2,b,b+2,b+3);}geo.setIndex(idx);geo.computeVertexNormals();root3d.add(new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:0x83d9ff,transparent:true,opacity:.42,side:THREE.DoubleSide})));addCurve3D(params,data,scale);
+}
+function addRevolutionX(params,data,scale,wire=false){
+  const valid=data.pts.filter(q=>Number.isFinite(q.y));if(valid.length<2){drawEmptyGraph(null,'No hay suficientes puntos válidos para construir el sólido. Revisa la función y el intervalo.');return;}const nx=Math.min(120,valid.length),nt=64;const pos=[];const idx=[];
+  for(let i=0;i<nx;i++){const q=valid[Math.floor(i*(valid.length-1)/(nx-1))],x=q.x*scale,r=Math.abs(q.y*scale);for(let j=0;j<nt;j++){const t=j/nt*Math.PI*2;pos.push(x,r*Math.cos(t),r*Math.sin(t));}}
+  for(let i=0;i<nx-1;i++)for(let j=0;j<nt;j++){const a=i*nt+j,b=i*nt+(j+1)%nt,c=(i+1)*nt+(j+1)%nt,d=(i+1)*nt+j;idx.push(a,b,d,b,c,d);}const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setIndex(idx);geo.computeVertexNormals();root3d.add(new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:0x83d9ff,transparent:true,opacity:wire?.25:.58,side:THREE.DoubleSide,wireframe:wire})));
+}
+function addRevolutionY(params,data,scale,wire=false){const valid=data.pts.filter(q=>Number.isFinite(q.y));if(valid.length<2){drawEmptyGraph(null,'No hay suficientes puntos válidos para construir el sólido. Revisa la función y el intervalo.');return;}const nx=Math.min(120,valid.length),nt=64,pos=[],idx=[];for(let i=0;i<nx;i++){const q=valid[Math.floor(i*(valid.length-1)/(nx-1))],y=q.y*scale,r=Math.abs(q.x*scale);for(let j=0;j<nt;j++){const t=j/nt*Math.PI*2;pos.push(r*Math.cos(t),y,r*Math.sin(t));}}for(let i=0;i<nx-1;i++)for(let j=0;j<nt;j++){const a=i*nt+j,b=i*nt+(j+1)%nt,c=(i+1)*nt+(j+1)%nt,d=(i+1)*nt+j;idx.push(a,b,d,b,c,d);}const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setIndex(idx);geo.computeVertexNormals();root3d.add(new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:0x83d9ff,transparent:true,opacity:wire?.25:.58,side:THREE.DoubleSide,wireframe:wire})));}
+function drawGraph(params,count=0){
+  window.__gesture3d=count;
+  if(!Number.isFinite(numericalIntegral(params.fn,params.a,params.b))){clear3D();drawEmptyGraph(null,'No se puede graficar');return;}
+  if(!init3D())return;clear3D();addAxesLabels();const data=makeCurvePoints(params);const scale=fit3DScale(data);
+  if(count===1)addArea3D(params,data,scale);
+  else if(count===2)addRevolutionX(params,data,scale,false);
+  else if(count===3)addRevolutionY(params,data,scale,false);
+  else if(count===4)addRevolutionX(params,data,scale,true);
+  else addCurve3D(params,data,scale);
+  const host=document.getElementById('graph3d');const old=host.querySelector('.graph3dMsg');if(old)old.remove();
+  if(count>=1&&count<=5){const labels=['','Área bajo la curva','Sólido de revolución alrededor del eje X','Sólido de revolución alrededor del eje Y','Superficie del sólido','Longitud de arco'];const msg=document.createElement('div');msg.className='graph3dMsg';msg.style.justifyContent='flex-start';msg.style.alignItems='flex-start';msg.style.fontWeight='700';msg.style.padding='12px';msg.style.fontSize='12px';msg.style.textShadow='0 1px 3px #000';msg.textContent=labels[count];host.appendChild(msg);}
+  resize3d&&resize3d();
+}
+function drawEmptyGraph(x,msg){const host=document.getElementById('graph3d');let m=host.querySelector('.graph3dMsg');if(!m){m=document.createElement('div');m.className='graph3dMsg';host.appendChild(m);}m.textContent=msg;}
+let currentParams={expr:'x^2',a:-2,b:2,fn:x=>x*x,axis:'xy'};
+function updateParams(){
+  try{
+    currentParams=readParams();
+    drawGraph(currentParams, stableCount);
+    draw2DGraph(currentParams, stableCount);
+    document.getElementById('plotStatus').innerHTML='<strong>Gráfica actualizada:</strong> '+currentParams.expr+' en ['+currentParams.a+', '+currentParams.b+']. Ejes X y Y activos.';
+    document.getElementById('cameraStatus').innerHTML='<strong>Listo:</strong> función e intervalo actualizados. Los gestos cambiarán la visualización.';
+    if(stableCount>=1&&stableCount<=5) updateGesture(stableCount);
+    else updatePrimitivePanel(currentParams,0,null);
+  }catch(e){document.getElementById('plotStatus').innerHTML='<strong class="error">Error:</strong> '+e.message;document.getElementById('cameraStatus').innerHTML='<strong class="error">Error:</strong> '+e.message;drawEmptyGraph(document.getElementById('graph').getContext('2d'),'Corrige la función o el intervalo.');}
+}
+document.getElementById('plotBtn').addEventListener('click',updateParams);
+document.querySelectorAll('[data-gesture-test]').forEach(btn=>btn.addEventListener('click',()=>{const count=Number(btn.dataset.gestureTest);stableCount=count;lastCount=count;document.querySelectorAll('[data-gesture-test]').forEach(b=>b.classList.toggle('selected',b===btn));updateGesture(count);}));
+document.getElementById('aInput').addEventListener('keydown',e=>{if(e.key==='Enter')updateParams()});
+document.getElementById('bInput').addEventListener('keydown',e=>{if(e.key==='Enter')updateParams()});
+document.getElementById('funcInput').addEventListener('keydown',e=>{if(e.key==='Enter')updateParams()});
+updateParams();
+
+// Cuenta los dedos usando los puntos de referencia de MediaPipe.
+function countFingers(lm){
+  let count=0;
+  // Índice, medio, anular y meñique: punta por encima de la articulación PIP.
+  const fingers=[[8,6],[12,10],[16,14],[20,18]];
+  for(const [tip,pip] of fingers){ if(lm[tip].y < lm[pip].y - 0.025) count++; }
+  // Pulgar: compara la posición de la punta con la articulación IP según el lado de la mano.
+  const handed=window.__handedness || 'Right';
+  if(handed==='Right'){ if(lm[4].x < lm[3].x - 0.025) count++; }
+  else { if(lm[4].x > lm[3].x + 0.025) count++; }
+  return Math.max(0,Math.min(5,count));
+}
+
+// Integral numérica de Simpson. Soporta una transformación opcional del integrando.
+// Valida el dominio y busca singularidades, incluso entre los nodos de Simpson.
+function validateIntegralDomain(fn,a,b){
+  const n=4096, span=b-a;
+  const safe=x=>{try{return fn(x)}catch{return NaN}};
+  let prev=safe(a), prevX=a;
+  for(let i=1;i<=n;i++){
+    const x=a+span*i/n, y=safe(x);
+    if(i<n && (!Number.isFinite(y)||Math.abs(y)>1e12))return false;
+    if(i>1 && i<n && Number.isFinite(prev) && Number.isFinite(y)){
+      // Un polo simple puede estar entre dos muestras (p. ej. tan(x)).
+      // Una raíz continua cambia de signo sin que su magnitud explote.
+      if(prev*y<0 && Math.min(Math.abs(prev),Math.abs(y))>2){
+        let lo=prevX,hi=x,fl=prev,found=false;
+        for(let k=0;k<35;k++){
+          const mid=(lo+hi)/2, fm=safe(mid);
+          if(!Number.isFinite(fm)||Math.abs(fm)>1e9){found=true;break;}
+          if(fl*fm<=0){hi=mid;}else{lo=mid;fl=fm;}
+        }
+        if(found || Math.abs(safe((lo+hi)/2))>1e7)return false;
+      }
+    }
+    prev=y;prevX=x;
+  }
+  // Un extremo no definido puede representar una integral impropia convergente.
+  return true;
+}
+
+// Simpson con sustitución cuadrática en extremos singulares y comprobación de convergencia.
+function numericalIntegral(fn,a,b,transform=null){
+  if(!validateIntegralDomain(fn,a,b))return NaN;
+  const valueAt=x=>{
+    let v;try{v=fn(x)}catch{return NaN;}
+    if(!Number.isFinite(v))return NaN;
+    try{v=transform?transform(v,x):v;}catch{return NaN;}
+    return Number.isFinite(v)?v:NaN;
+  };
+  const leftBad=!Number.isFinite(valueAt(a)),rightBad=!Number.isFinite(valueAt(b));
+  const span=b-a;
+  // Transformación x=a+(b-a)sin²(πt/2): suaviza ambos extremos.
+  const integrand=t=>{
+    const angle=Math.PI*t/2, sin=Math.sin(angle),cos=Math.cos(angle);
+    const x=a+span*sin*sin;
+    const jac=span*Math.PI*sin*cos;
+    if(t===0||t===1){
+      if((t===0&&leftBad)||(t===1&&rightBad)){
+        // Estimación de límite de la función transformada cerca del extremo.
+        const u=t===0?1e-6:1-1e-6;
+        return integrand(u);
+      }
+      return valueAt(t===0?a:b)*jac;
+    }
+    const y=valueAt(x);
+    return Number.isFinite(y)?y*jac:NaN;
+  };
+  const simpson=n=>{
+    const h=1/n;let sum=0;
+    for(let i=0;i<=n;i++){
+      const v=integrand(i*h);
+      if(!Number.isFinite(v))return NaN;
+      sum+=(i===0||i===n?1:i%2?4:2)*v;
+    }
+    return sum*h/3;
+  };
+  const coarse=simpson(1024),fine=simpson(4096);
+  if(!Number.isFinite(coarse)||!Number.isFinite(fine))return NaN;
+  // Rechaza integrales impropias sin convergencia numérica estable.
+  if(Math.abs(fine-coarse)>0.008*Math.max(1,Math.abs(fine)))return NaN;
+  return fine;
+}
+
+
+// Explicación simbólica local: solo afirma reglas verificadas. Los demás casos
+// se informan como «sin resolución simbólica automática», no como imposibles.
+function getAntiderivativeExplanation(expression){
+  const original=expression.trim(), compact=original.toLowerCase().replace(/\s+/g,'').replace(/π/g,'pi').replace(/−/g,'-').replace(/\*\*/g,'^');
+  const num=v=>Number(Math.abs(v)<1e-12?0:v).toLocaleString('es-CO',{maximumFractionDigits:6,useGrouping:false});
+  const result=(method,formula,steps,evaluate=null)=>({method,formula,steps,evaluate,available:true});
+  const unsupported=(method,reason)=>({method,formula:'No calculada automáticamente',steps:[reason,'Para el resultado definido, INTEGRAGESTOS usa la integración numérica de Simpson y comprueba la validez del intervalo.'],available:false});
+  // Reconoce ax+b en la sintaxis habitual: x, 2x+3, -x+1, 3*x-2.
+  const affine=raw=>{
+    const v=raw.replace(/^\((.*)\)$/,'$1').replace(/\*/g,'');
+    if(!v.includes('x'))return null;
+    const m=v.match(/^([+-]?(?:\d+(?:\.\d+)?)?)x([+-]\d+(?:\.\d+)?)?$/);
+    if(!m)return null;
+    const a=m[1]===''||m[1]==='+'?1:m[1]==='-'?-1:Number(m[1]);
+    return a!==0?{a,b:Number(m[2]||0),text:raw}:null;
+  };
+  // Monomios y constantes, separados por sumas/restas fuera de paréntesis.
+  const terms=[];let depth=0,begin=0;
+  for(let i=1;i<compact.length;i++){
+    const c=compact[i];if(c==='(')depth++;if(c===')')depth--;
+    if(depth===0&&(c==='+'||c==='-') && !['^','e','E'].includes(compact[i-1])){terms.push(compact.slice(begin,i));begin=i;}
+  }
+  terms.push(compact.slice(begin));
+  const polyparts=[],polyFns=[];
+  let isPolynomial=terms.length>0;
+  for(const t of terms){
+    const m=t.match(/^([+-]?)(?:(\d+(?:\.\d+)?)\*?)?x(?:\^\(?(-?\d+(?:\.\d+)?)\)?)?$/);
+    if(m){const k=(m[1]==='-'?-1:1)*(m[2]!==undefined?Number(m[2]):1),n=m[3]!==undefined?Number(m[3]):1;
+      if(!Number.isFinite(n)||n===-1){if(n===-1){polyparts.push(`${num(k)}ln|x|`);polyFns.push(x=>k*Math.log(Math.abs(x)));}else isPolynomial=false;}
+      else {
+        const power=n+1, base='x'+(power===1?'':`^${num(power)}`);
+        let show;
+        if(Number.isInteger(k)&&Number.isInteger(power)&&power>0){
+          const gcd=(x,y)=>y===0?x:gcd(y,x%y),g=gcd(Math.abs(k),power),top=k/g,den=power/g;
+          const part=(top===1?'':top===-1?'-':num(top))+base;
+          show=den===1?part:`${part}/${num(den)}`;
+        }else show=`${num(k/power)}${base}`;
+        polyparts.push(show);polyFns.push(x=>k*Math.pow(x,n+1)/power);
+      }
+    }else if(/^[-+]?\d+(?:\.\d+)?$/.test(t)){
+      const k=Number(t);polyparts.push(k===1?'x':k===-1?'-x':`${num(k)}x`);polyFns.push(x=>k*x);
+    }else{isPolynomial=false;break;}
+  }
+  if(isPolynomial && polyparts.length){
+    const pretty=polyparts.map((v,i)=>i>0&&v[0]!=='-'?'+ '+v:v).join(' ').replace(/\+ -/g,'- ');
+    return result('Linealidad y regla de la potencia',pretty+' + C',[
+      'Separar la suma y los factores constantes.',
+      'Aplicar ∫x^n dx = x^(n+1)/(n+1), con n ≠ −1; para 1/x usar ln|x|.',
+      'Sumar las primitivas e incluir la constante C.'
+    ],x=>polyFns.reduce((a,f)=>a+f(x),0));
+  }
+  if(compact==='1/x'||compact==='x^-1')return result('Caso logarítmico de la potencia','ln|x| + C',['Reconocer x^(−1): la regla de potencia usual no aplica cuando n = −1.','Usar ∫(1/x) dx = ln|x| + C.','Comprobar el intervalo: si cruza x = 0, la integral impropia no converge.'],x=>Math.log(Math.abs(x)));
+  if(/^1\/\(?x\^2\)?$/.test(compact))return result('Regla de potencias','−1/x + C',['Escribir 1/x² = x^(−2).','Aplicar ∫x^n dx = x^(n+1)/(n+1).','Se obtiene −x^(−1) + C.'],x=>-1/x);
+  if(/^1\/sqrt\(x\)$/.test(compact))return result('Regla de potencias (integral impropia)','2√x + C',['Escribir 1/√x = x^(−1/2).','Aplicar la regla de potencia: x^(1/2)/(1/2).','Simplificar: 2√x + C. En x=0 evaluar mediante límite.'],x=>2*Math.sqrt(x));
+  if(/^abs\(x\)$/.test(compact))return result('Integral por tramos','x|x|/2 + C',['Separar en x ≥ 0 y x < 0.','Integrar x en x ≥ 0 y −x en x < 0.','Combinar como x|x|/2 + C.'],x=>x*Math.abs(x)/2);
+  const lnm=compact.match(/^(ln|log)\(x\)$/);
+  if(lnm){const base=lnm[1]==='log'?Math.LN10:1;return result('Integración por partes',lnm[1]==='ln'?'x ln(x) − x + C':'[x ln(x) − x]/ln(10) + C',[
+    'Elegir u = ln(x) y dv = dx (para log base 10, dividir por ln(10)).',
+    'Calcular du = dx/x y v = x.',
+    'Aplicar ∫u dv = uv − ∫v du y simplificar.'
+  ],x=>(x*Math.log(x)-x)/base);}
+  if(compact==='1/(1+x^2)'||compact==='1/(x^2+1)')return result('Forma inversa trigonométrica','arctan(x) + C',['Reconocer ∫1/(1+x²) dx.','Usar d(arctan x)/dx = 1/(1+x²).'],x=>Math.atan(x));
+  const recip=compact.match(/^1\/\(([^()]*)\)(?:\^(\d+))?$/);
+  if(recip){const aff=affine(recip[1]);if(aff){const n=Number(recip[2]||1),A=aff.a,txt=recip[1];
+    if(n===1)return result('Sustitución u = '+txt,`ln|${txt}|/${num(A)} + C`,[`Elegir u = ${txt}.`,`du = ${num(A)} dx; despejar dx = du/${num(A)}.`,`Integrar (1/${num(A)})∫1/u du = ln|u|/${num(A)} + C.`],x=>Math.log(Math.abs(A*x+aff.b))/A);
+    if(n>1)return result('Sustitución y regla de potencias',`(${txt})^(${1-n})/${num(A*(1-n))} + C`,[`Elegir u = ${txt} y du = ${num(A)} dx.`,`Integrar (1/${num(A)})∫u^(−${n}) du.`,`Aplicar la regla de potencia y sustituir u = ${txt}.`],x=>Math.pow(A*x+aff.b,1-n)/(A*(1-n)));
+  }}
+  const simple=compact.match(/^(sin|cos|tan|sqrt|exp|ln|log)\(([^()]*)\)$/);
+  if(simple){const op=simple[1],arg=simple[2],aff=affine(arg);if(aff){const a=aff.a,b=aff.b,k=op==='log'?Math.LN10:1;
+    let prim,evalFn;
+    if(op==='sin'){prim=`−cos(${arg})/${num(a)}`;evalFn=x=>-Math.cos(a*x+b)/a;}
+    if(op==='cos'){prim=`sin(${arg})/${num(a)}`;evalFn=x=>Math.sin(a*x+b)/a;}
+    if(op==='tan'){prim=`−ln|cos(${arg})|/${num(a)}`;evalFn=x=>-Math.log(Math.abs(Math.cos(a*x+b)))/a;}
+    if(op==='exp'){prim=`exp(${arg})/${num(a)}`;evalFn=x=>Math.exp(a*x+b)/a;}
+    if(op==='sqrt'){prim=`2(${arg})^(3/2)/${num(3*a)}`;evalFn=x=>2*Math.pow(a*x+b,1.5)/(3*a);}
+    if(op==='ln'||op==='log'){prim=`[(${arg})ln(${arg}) − (${arg})]/${num(a*k)}`;evalFn=x=>((a*x+b)*Math.log(a*x+b)-(a*x+b))/(a*k);}
+    return result('Sustitución u = '+arg,prim+' + C',[`Elegir u = ${arg} y du = ${num(a)} dx.`,`Reescribir ∫f(u)du / ${num(a)}.`,`Integrar en u y volver a sustituir ${arg}.`],evalFn);
+  }}
+  const powerE=compact.match(/^e\^\(?([^()]*)\)?$/);
+  if(powerE){const aff=affine(powerE[1]);if(aff){return result('Sustitución en exponencial',`e^(${powerE[1]})/${num(aff.a)} + C`,[`u = ${powerE[1]}; du = ${num(aff.a)} dx.`,`Integrar ∫e^u du / ${num(aff.a)}.`,`Regresar a x.`],x=>Math.exp(aff.a*x+aff.b)/aff.a);}}
+  // Substitución cuadrática: k*x*f(ax²+b).
+  const quad=compact.match(/^([+-]?(?:\d+(?:\.\d+)?)?)\*?x\*?(sin|cos|exp)\((([+-]?(?:\d+(?:\.\d+)?)?)\*?x\^2(?:[+-]\d+(?:\.\d+)?)?)\)$/);
+  if(quad){const k=quad[1]===''||quad[1]==='+'?1:quad[1]==='-'?-1:Number(quad[1]),A=quad[4]===''||quad[4]==='+'?1:quad[4]==='-'?-1:Number(quad[4]);const op=quad[2],u=quad[3],c=k/(2*A);
+    if(A){const prefix=op==='sin'?`−${num(c)}cos(${u})`:op==='cos'?`${num(c)}sin(${u})`:`${num(c)}exp(${u})`;
+      return result('Sustitución u = '+u,prefix+' + C',[`Elegir u = ${u}.`,`du = ${num(2*A)}x dx; por ello ${num(k)}x dx = ${num(c)}du.`,`Integrar ${num(c)}∫${op}(u) du y regresar a x.`],x=>op==='sin'?-c*Math.cos(A*x*x+Number((u.match(/x\^2([+-]\d+(?:\.\d+)?)$/)||[])[1]||0)):op==='cos'?c*Math.sin(A*x*x+Number((u.match(/x\^2([+-]\d+(?:\.\d+)?)$/)||[])[1]||0)):c*Math.exp(A*x*x+Number((u.match(/x\^2([+-]\d+(?:\.\d+)?)$/)||[])[1]||0)));
+    }
+  }
+  const byParts=compact.match(/^x\*?(?:exp\(([^()]+)\)|e\^\(?([^()]+)\)?)$/);
+  if(byParts){const aff=affine(byParts[1]||byParts[2]);if(aff&&aff.b===0){const a=aff.a;return result('Integración por partes',`e^(${num(a)}x)·[x/${num(a)} − 1/${num(a*a)}] + C`,['Elegir u=x, dv=e^('+num(a)+'x)dx.','du=dx y v=e^('+num(a)+'x)/'+num(a)+'.','Aplicar ∫u dv = uv − ∫v du.'],x=>Math.exp(a*x)*(x/a-1/(a*a)));}}
+  if(/^(?:exp\(-x\^2\)|e\^\(-x\^2\))$/.test(compact))return unsupported('Integral especial (función error, erf)','∫e^(−x²) dx no tiene primitiva en funciones elementales; puede expresarse con erf(x).');
+  if(/^1\/\(x\^2-1\)$/.test(compact))return result('Fracciones parciales','(1/2)ln|(x−1)/(x+1)| + C',['Factorizar x²−1 = (x−1)(x+1).','Descomponer: 1/(x²−1) = (1/2)/(x−1) − (1/2)/(x+1).','Integrar cada término como logaritmo.'],x=>.5*Math.log(Math.abs((x-1)/(x+1))));
+  if(/\/\([^)]*x\^2/.test(compact))return unsupported('Fracciones parciales o sustitución trigonométrica','El denominador contiene un polinomio cuadrático; estudiar su factorización antes de integrar.');
+  if(/(?:sin|cos|tan|exp|sqrt)\(.*x\^2/.test(compact))return unsupported('Sustitución (si aparece la derivada interna)','Buscar u = expresión interior y comprobar si el resto contiene du. Si no, revisar si requiere una función especial.');
+  if(/x\*?(?:sin|cos|exp|ln)/.test(compact))return unsupported('Integración por partes','Probar u como factor algebraico y dv como factor trigonométrico, exponencial o logarítmico.');
+  if(/\//.test(compact))return unsupported('Sustitución, fracciones parciales o integral impropia','Analizar el denominador, sus ceros y la forma del integrando antes de elegir el método.');
+  return unsupported('Análisis del integrando / método numérico','No hay una regla simbólica implementada para esta expresión. Esto no significa que no exista antiderivada.');
+}
+
+function updatePrimitivePanel(params,count,calc){
+  const host=document.getElementById('primitiveContent');if(!host)return;
+  const info=getAntiderivativeExplanation(params.expr);
+  host.replaceChildren();
+  const el=(tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.className=cls;node.textContent=text;host.appendChild(node);return node;};
+  el('div','methodLabel','Método: '+info.method);
+  el('div','primitiveFormula','F(x) = '+info.formula);
+  const list=document.createElement('ol');host.appendChild(list);
+  for(const step of info.steps){const item=document.createElement('li');item.textContent=step;list.appendChild(item);}
+  if(info.available&&info.evaluate&&count===1&&calc&&Number.isFinite(calc.value)){
+    const A=info.evaluate(params.a),B=info.evaluate(params.b);
+    if(Number.isFinite(A)&&Number.isFinite(B)&&Math.abs((B-A)-calc.value)<Math.max(.05,Math.abs(calc.value)*.02))
+      el('div','primitiveNote','Verificación: F(b) − F(a) ≈ '+(B-A).toFixed(4)+'.');
+  }
+  if(count>1)el('div','primitiveNote','La antiderivada anterior es de f(x). El gesto '+count+' usa otro integrando; su resultado se aproxima numéricamente.');
+  if(calc&&!Number.isFinite(calc.value))el('div','primitiveNote','La integral definida seleccionada no pudo validarse: Indeterminado. Una primitiva no garantiza convergencia en singularidades.');
+}
+
+function updateGesture(count){
+  window.__gesture3d=count;
+  dedos.textContent=count;
+  if(count>=1 && count<=5){
+    const a=actions[count];
+    accion.innerHTML='<b>'+a[0]+'</b><br><span style="color:#b6bcc2;font-size:12px">'+a[1]+'</span>';
+    gestureIcon.textContent=a[2];
+    handMessage.innerHTML='<b>Mano detectada correctamente.</b><br>Gesto reconocido: '+count+' dedo'+(count===1?'':'s')+'.';
+    draw2DGraph(currentParams,count);
+    const calc=calculateForGesture(currentParams,count);
+    if(calc && Number.isFinite(calc.value))drawGraph(currentParams,count);
+    else {clear3D();drawEmptyGraph(null,'No se puede graficar');}
+    document.getElementById('integral').textContent=calc?calc.formula:'—';
+    const resultadoEl=document.getElementById('resultado');
+    if(calc){
+      // Si la integral no puede evaluarse numéricamente (por ejemplo, una singularidad
+      // que produce Infinity o NaN dentro del intervalo), no mostrar un número engañoso.
+      resultadoEl.textContent=Number.isFinite(calc.value)?calc.value.toFixed(4):'Indeterminado';
+    }else{
+      resultadoEl.textContent='—';
+    }
+    document.getElementById('unidades').textContent=calc?(Number.isFinite(calc.value)?calc.unit:'No definido'):'—';
+    updatePrimitivePanel(currentParams,count,calc);
+    document.getElementById('plotStatus').innerHTML='<strong>Gesto activo:</strong> '+a[0]+'. La visualización se actualizó automáticamente.';
+  }else{
+    accion.innerHTML='Muestra un gesto con <b>1 a 5 dedos</b><br>para ejecutar una acción.';
+    gestureIcon.textContent='✋';
+    handMessage.innerHTML='No se detecta una cantidad válida.<br>Coloca la mano completa y separa los dedos.';
+    drawGraph(currentParams,0);
+    draw2DGraph(currentParams,0);
+    updatePrimitivePanel(currentParams,0,null);
+  }
+}
+
+function onResults(results){
+  if(!running) return;
+  overlay.width=video.videoWidth||640; overlay.height=video.videoHeight||480;
+  ctx.clearRect(0,0,overlay.width,overlay.height);
+  if(results.multiHandLandmarks && results.multiHandLandmarks.length){
+    const lm=results.multiHandLandmarks[0];
+    window.__handedness=(results.multiHandedness&&results.multiHandedness[0]&&results.multiHandedness[0].label)||'Right';
+    drawConnectors(ctx,lm,HAND_CONNECTIONS,{color:'#83d9ff',lineWidth:4});
+    drawLandmarks(ctx,lm,{color:'#ffffff',fillColor:'#83d9ff',lineWidth:1,radius:4});
+    const c=countFingers(lm);
+    handStatus.textContent='Mano detectada';
+    if(c===lastCount) stableFrames++; else {lastCount=c;stableFrames=0;}
+    // Evita cambios por pequeños movimientos de la mano.
+    if((stableFrames>=3 || c===0) && c!==stableCount){stableCount=c;updateGesture(stableCount);}
+    cameraMsg.textContent='Mano detectada. Dedos: '+c;
+  }else{
+    handStatus.textContent='Buscando mano...';
+    handMessage.innerHTML='No encuentro una mano.<br>Acércala, ilumínala bien y mantén los dedos visibles.';
+    cameraMsg.textContent='Buscando una mano frente a la cámara...';
+    dedos.textContent='0';
+    accion.innerHTML='Muestra un gesto con <b>1 a 5 dedos</b><br>para ejecutar una acción.';
+    gestureIcon.textContent='✋';
+    ctx.clearRect(0,0,overlay.width,overlay.height);
+  }
+}
+
+const hands=new Hands({locateFile:(file)=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
+hands.setOptions({maxNumHands:1,modelComplexity:1,minDetectionConfidence:0.65,minTrackingConfidence:0.60});
+hands.onResults(onResults);
+
+async function startCamera(){
+  try{
+    cameraStatus.innerHTML='<strong>Conectando:</strong> solicita permiso de cámara y espera unos segundos mientras se carga el reconocimiento de mano.';
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){throw new Error('getUserMedia no disponible. Abre la página en HTTPS o en localhost.');}
+    stream=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:1280},height:{ideal:720},facingMode:'user'},audio:false});
+    video.srcObject=stream;
+    await video.play();
+    running=true;start.disabled=true;stop.disabled=false;
+    cameraState.textContent='Cámara activa';cameraDot.classList.remove('off');
+    cameraMsg.textContent='Cámara activa. Coloca una sola mano frente a ella.';
+    cameraStatus.innerHTML='<strong>Listo:</strong> la cámara está activa. Coloca una mano completa, con buena iluminación y los dedos separados.';
+    handStatus.textContent='Buscando mano...';
+    welcome.classList.add('hidden');
+    if(camera) camera.stop();
+    camera=new Camera(video,{onFrame:async()=>{if(running) await hands.send({image:video});},width:1280,height:720});
+    camera.start();
+  }catch(e){
+    console.error(e);
+    running=false;
+    cameraStatus.innerHTML='<strong class="error">No se pudo activar la cámara.</strong> Acepta el permiso del navegador y, si abriste el archivo directamente, usa un servidor local (por ejemplo VS Code + Live Server).';
+    cameraMsg.textContent='Permiso de cámara pendiente o bloqueado.';
+    handStatus.textContent='Cámara no disponible';
+  }
+}
+
+function stopCamera(){
+  running=false;
+  if(camera){camera.stop();camera=null;}
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+  video.srcObject=null;ctx.clearRect(0,0,overlay.width,overlay.height);
+  start.disabled=false;stop.disabled=true;cameraState.textContent='Cámara inactiva';cameraDot.classList.add('off');
+  cameraMsg.textContent='Cámara detenida.';cameraStatus.innerHTML='<strong>Antes de comenzar:</strong> activa la cámara y permite el acceso cuando el navegador lo solicite.';
+  handStatus.textContent='Esperando cámara...';handMessage.innerHTML='Primero activa la cámara.<br>Después coloca una mano completa y bien iluminada.';dedos.textContent='0';lastCount=-1;stableFrames=0;
+}
+start.onclick=startCamera;stop.onclick=stopCamera;welcomeStart.onclick=startCamera;
+// Renderiza una curva inicial aunque todavía no se haya activado la cámara.
+window.addEventListener('load',()=>{try{draw2DGraph(currentParams,0);if(Number.isFinite(numericalIntegral(currentParams.fn,currentParams.a,currentParams.b)))drawGraph(currentParams,0);else{clear3D();drawEmptyGraph(null,'No se puede graficar');}}catch(err){console.error('Error al iniciar gráficas:',err);drawEmptyGraph(null,'No se pudo iniciar la visualización 3D. Revisa la conexión y vuelve a cargar.');}});
+</script>
+<script>
+
+// Visor de código, independiente del reconocimiento de gestos y de los cálculos.
+(() => {
+  const launch = document.getElementById('codeLaunch');
+  const panel = document.getElementById('codeViewer');
+  const close = document.getElementById('codeClose');
+  const code = document.getElementById('codeContent');
+  const copyButton = document.getElementById('codeCopy');
+  const tabs = Array.from(panel.querySelectorAll('[data-code-tab]'));
+  const pre = panel.querySelector('.code-viewer-code');
+  let content = null;
+  let activeTab = 'all';
+
+  async function getPageCode() {
+    // En GitHub Pages/Live Server se obtiene el fichero exacto. Si se abre
+    // con file://, se recurre al HTML actual serializado para que siga funcionando.
+    let full;
+    try {
+      const response = await fetch(window.location.href, {cache:'no-store'});
+      if (!response.ok) throw new Error('No se pudo leer el documento HTML.');
+      full = await response.text();
+      if (!full.includes('INTEGRAGESTOS') || !full.includes('codeViewer')) throw new Error('Documento inesperado');
+    } catch (_) {
+      full = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+    }
+    const parsed = new DOMParser().parseFromString(full, 'text/html');
+    const styles = Array.from(parsed.querySelectorAll('style'))
+      .map((el, index) => '/* Bloque CSS ' + (index + 1) + ' */\n' + el.textContent).join('\n\n');
+    const external = Array.from(parsed.querySelectorAll('script[src]'))
+      .map(el => '// Biblioteca externa: ' + el.getAttribute('src')).join('\n');
+    const scripts = Array.from(parsed.querySelectorAll('script:not([src])'))
+      .map((el, index) => '// Bloque JavaScript ' + (index + 1) + '\n' + el.textContent).join('\n\n');
+    return {all: full, css: styles || 'No hay estilos CSS internos.',
+      js: (external ? external + '\n\n' : '') + (scripts || 'No hay scripts JavaScript internos.')};
+  }
+
+  function selectTab(tab) {
+    activeTab = tab;
+    for (const item of tabs) item.setAttribute('aria-selected', String(item.dataset.codeTab === tab));
+    code.textContent = content ? content[tab] : 'Cargando código...';
+    pre.scrollTop = 0;
+    pre.scrollLeft = 0;
+  }
+
+  launch.addEventListener('click', async () => {
+    panel.hidden = false;
+    close.focus();
+    selectTab(activeTab);
+    if (!content) {
+      try {content = await getPageCode(); selectTab(activeTab);}
+      catch (error) {code.textContent = 'No se pudo cargar el código: ' + error.message;}
+    }
+  });
+  function hide() {panel.hidden = true; launch.focus();}
+  close.addEventListener('click', hide);
+  panel.addEventListener('click', event => {if (event.target === panel) hide();});
+  document.addEventListener('keydown', event => {if (event.key === 'Escape' && !panel.hidden) hide();});
+  tabs.forEach(tab => tab.addEventListener('click', () => selectTab(tab.dataset.codeTab)));
+  copyButton.addEventListener('click', async () => {
+    const selected = content && content[activeTab];
+    if (!selected) return;
+    try {
+      if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(selected);
+      else {
+        const input = document.createElement('textarea');
+        input.value = selected;
+        input.style.position = 'fixed'; input.style.opacity = '0';
+        document.body.appendChild(input); input.select();
+        const ok = document.execCommand('copy'); input.remove();
+        if (!ok) throw new Error('Copia no disponible');
+      }
+      copyButton.textContent = '¡Copiado!';
+    } catch (_) {
+      copyButton.textContent = 'Selecciona el código para copiar';
+    }
+  });
+  tabs.forEach(tab => tab.addEventListener('click', () => {copyButton.textContent = 'Copiar código';}));
+})();
+
+</script>
+</body>
+</html>
